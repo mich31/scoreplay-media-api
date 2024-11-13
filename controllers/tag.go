@@ -1,29 +1,43 @@
 package controllers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/mich31/scoreplay-media-api/services"
+)
 
-func GetTags(c *fiber.Ctx) error {
+type TagController struct {
+	service services.TagService
+}
+
+func NewTagController(service services.TagService) *TagController {
+	return &TagController{
+		service,
+	}
+}
+
+func (ctrl TagController) GetTags(c *fiber.Ctx) error {
+	// var results []models.Tag
 	return c.Status(501).JSON(&fiber.Map{
 		"success": false,
 		"message": "Not implemented yet",
 	})
 }
 
-func CreateTag(c *fiber.Ctx) error {
+func (ctrl TagController) CreateTag(c *fiber.Ctx) error {
 	return c.Status(501).JSON(&fiber.Map{
 		"success": false,
 		"message": "Not implemented yet",
 	})
 }
 
-func UpdateTag(c *fiber.Ctx) error {
+func (ctrl TagController) UpdateTag(c *fiber.Ctx) error {
 	return c.Status(501).JSON(&fiber.Map{
 		"success": false,
 		"message": "Not implemented yet",
 	})
 }
 
-func DeleteTag(c *fiber.Ctx) error {
+func (ctrl TagController) DeleteTag(c *fiber.Ctx) error {
 	return c.Status(501).JSON(&fiber.Map{
 		"success": false,
 		"message": "Not implemented yet",

@@ -8,13 +8,20 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mich31/scoreplay-media-api/controllers"
 	"github.com/mich31/scoreplay-media-api/database"
+	"github.com/mich31/scoreplay-media-api/repositories"
+	"github.com/mich31/scoreplay-media-api/services"
 )
 
 func main() {
 	// Connect to database
-	if err := database.Connect(); err != nil {
+	db, err := database.Connect()
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	tagRepository := repositories.NewTagRepository(db)
+	tagService := services.NewTagService(*tagRepository)
+	tagController := controllers.NewTagController(*tagService)
 
 	app := fiber.New(fiber.Config{
 		AppName: "ScorePlay Media API v0.1",
@@ -27,10 +34,10 @@ func main() {
 
 	// routes
 	api.Route("tags", func(router fiber.Router) {
-		router.Get("/", controllers.GetTags)
-		router.Post("/", controllers.CreateTag)
-		router.Patch("/:id", controllers.UpdateTag)
-		router.Delete("/:id", controllers.DeleteTag)
+		router.Get("/", tagController.GetTags)
+		router.Post("/", tagController.CreateTag)
+		router.Patch("/:id", tagController.UpdateTag)
+		router.Delete("/:id", tagController.DeleteTag)
 	})
 	api.Route("medias", func(router fiber.Router) {
 		router.Get("/", controllers.GetMedias)
