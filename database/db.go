@@ -11,10 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Database instance
-var DB *gorm.DB
-
-func Connect() error {
+func Connect() (*gorm.DB, error) {
 	port, err := strconv.Atoi(config.Config("DB_PORT"))
 	if err != nil {
 		log.Fatal("PORT not entered in INT format")
@@ -31,7 +28,6 @@ func Connect() error {
 	// Migrate the models
 	db.AutoMigrate(&models.Tag{})
 
-	DB = db
 	fmt.Println("Connection Opened to Database")
-	return nil
+	return db, nil
 }
