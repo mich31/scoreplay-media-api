@@ -1,13 +1,21 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mich31/scoreplay-media-api/controllers"
+	"github.com/mich31/scoreplay-media-api/database"
 )
 
 func main() {
+	// Connect to database
+	if err := database.Connect(); err != nil {
+		log.Fatal(err)
+	}
+
 	app := fiber.New(fiber.Config{
 		AppName: "ScorePlay Media API v0.1",
 	})
