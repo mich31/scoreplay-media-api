@@ -20,7 +20,7 @@ func main() {
 	}
 
 	tagRepository := repositories.NewTagRepository(db)
-	tagService := services.NewTagService(*tagRepository)
+	tagService := services.NewTagService(tagRepository)
 	tagController := controllers.NewTagController(*tagService)
 
 	app := fiber.New(fiber.Config{
