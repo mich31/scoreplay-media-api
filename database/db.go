@@ -26,7 +26,7 @@ func Connect() (*gorm.DB, error) {
 	}
 
 	// Migrate the models
-	db.AutoMigrate(&models.Tag{})
+	db.AutoMigrate(&models.Tag{}, &models.Media{}, &models.MediaTag{})
 
 	fmt.Println("Connection Opened to Database")
 	return db, nil

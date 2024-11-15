@@ -20,8 +20,11 @@ func main() {
 	}
 
 	tagRepository := repositories.NewTagRepository(db)
+	mediaRepository := repositories.NewMediaRepository(db)
 	tagService := services.NewTagService(tagRepository)
+	mediaService := services.NewMediaService(mediaRepository, tagRepository)
 	tagController := controllers.NewTagController(*tagService)
+	mediaController := controllers.NewMediaController(*mediaService)
 
 	app := fiber.New(fiber.Config{
 		AppName: "ScorePlay Media API v0.1",
@@ -40,10 +43,10 @@ func main() {
 		router.Delete("/:id", tagController.DeleteTag)
 	})
 	api.Route("medias", func(router fiber.Router) {
-		router.Get("/", controllers.GetMedias)
-		router.Post("/", controllers.CreateMedia)
-		router.Patch("/:id", controllers.UpdateMedia)
-		router.Delete("/:id", controllers.DeleteMedia)
+		router.Get("/", mediaController.GetMedias)
+		router.Post("/", mediaController.CreateMedia)
+		router.Patch("/:id", mediaController.UpdateMedia)
+		router.Delete("/:id", mediaController.DeleteMedia)
 	})
 
 	app.Listen(":3000")
