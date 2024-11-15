@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/mich31/scoreplay-media-api/models"
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ var (
 	ErrMediaCreation    = errors.New("failed to create media record")
 	ErrMediaExists      = errors.New("a media with the same name already exists")
 	ErrMediaDBOperation = errors.New("database operation failed")
+	ErrMediaRetrieval   = errors.New("failed to fetch media(s) associated with a tag")
 )
 
 type IMediaRepository interface {
@@ -74,8 +76,8 @@ func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagN
 		Where("tag_id = ?", tag).
 		Find(&mediaIDs).Error
 
-	if err != nil { // TODO
-		return nil, err
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrMediaRetrieval, err)
 	}
 
 	medias := []models.MediaWithTagNames{}
@@ -89,7 +91,7 @@ func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagN
 			Group("media.id").
 			First(&media).Error
 		if err != nil {
-			fmt.Errorf("unable to fetch media %s", mediaId)
+			log.Printf("unable to fetch media %d", mediaId)
 		}
 		medias = append(medias, media)
 	}

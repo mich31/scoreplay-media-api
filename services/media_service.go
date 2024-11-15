@@ -36,7 +36,6 @@ func NewMediaService(mediaRepository repositories.IMediaRepository, tagRepositor
 }
 
 func (service *MediaService) CreateMedia(ctx context.Context, name string, tags []string, file *multipart.FileHeader) (uint, error) {
-	// TODO find media by name
 	fileUrl, err := service.storage.UploadObject(ctx, file)
 	if err != nil {
 		return 0, err
