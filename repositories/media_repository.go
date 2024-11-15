@@ -1,10 +1,17 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/mich31/scoreplay-media-api/models"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrMediaCreation    = errors.New("failed to create media record")
+	ErrMediaExists      = errors.New("a media with the same name already exists")
+	ErrMediaDBOperation = errors.New("database operation failed")
 )
 
 type IMediaRepository interface {
@@ -24,21 +31,21 @@ func NewMediaRepository(db *gorm.DB) *MediaRepository {
 func (repository *MediaRepository) Create(media *models.Media, tagNames []string) (uint, error) {
 	result := repository.db.Where(models.Media{Name: media.Name}).FirstOrCreate(media)
 	if result.Error != nil {
-		return 0, result.Error
+		return 0, fmt.Errorf("%w: %v", ErrMediaCreation, result.Error)
 	}
 	//If the media already exists
 	if result.RowsAffected == 0 {
-		return 0, nil // TODO
+		return 0, fmt.Errorf("%w: media with name '%s'", ErrMediaExists, media.Name)
 	}
 
 	err := repository.db.Transaction(func(tx *gorm.DB) error {
 		// Verify all tags exist
 		var tags []*models.Tag
 		if err := tx.Model(&models.Tag{}).Where("name IN ?", tagNames).Find(&tags).Error; err != nil {
-			return fmt.Errorf("Unable to check tags: %w", err)
+			return fmt.Errorf("unable to check tags: %w", err)
 		}
 		if len(tags) != len(tagNames) {
-			return fmt.Errorf("Some tags do not exist")
+			return fmt.Errorf("some tags do not exist")
 		}
 
 		for _, tag := range tags {
@@ -48,16 +55,16 @@ func (repository *MediaRepository) Create(media *models.Media, tagNames []string
 			}
 
 			if err := tx.Create(&mediaTag).Error; err != nil {
-				return fmt.Errorf("An error occured creating media-tag association: %w", err)
+				return fmt.Errorf("an error occured creating media-tag association: %w", err)
 			}
 		}
 
 		return nil
 	})
 	if err != nil {
-		fmt.Errorf("Error: %s", err.Error)
+		return 0, fmt.Errorf("%w: %w", ErrMediaDBOperation, err)
 	}
-	return media.ID, err // TODO
+	return media.ID, err
 }
 
 func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagNames, error) {
@@ -82,7 +89,7 @@ func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagN
 			Group("media.id").
 			First(&media).Error
 		if err != nil {
-			fmt.Errorf("Unable to fetch media %s", mediaId)
+			fmt.Errorf("unable to fetch media %s", mediaId)
 		}
 		medias = append(medias, media)
 	}

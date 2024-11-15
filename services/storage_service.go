@@ -19,41 +19,42 @@ type StorageService struct {
 }
 
 func NewStorageService() (*StorageService, error) {
-	fmt.Println("Initializing storage service..")
+	fmt.Println("initializing storage service..")
 	client, err := minio.New(config.Config("STORAGE_ENDPOINT"), &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Config("STORAGE_ACCESS_KEY_ID"), config.Config("STORAGE_SECRET_ACCESS_KEY"), ""),
 		Secure: false,
 	})
 	if err != nil {
-		return nil, err // TODO
+		return nil, fmt.Errorf("failed to initialize storage client: %w", err)
 	}
 
-	fmt.Println("Storage service initialized")
+	fmt.Println("storage service initialized")
 
 	return &StorageService{
 		Client: client,
 	}, nil
 }
 
-func (service *StorageService) CreateBucket(ctx context.Context, bucketName string) {
+func (service *StorageService) CreateBucket(ctx context.Context, bucketName string) error {
 	err := service.Client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: config.Config("STORAGE_BUCKET_REGION")})
-	service.BucketName = bucketName // TODO
+	service.BucketName = bucketName
 	if err != nil {
 		exists, errBucketExists := service.Client.BucketExists(ctx, bucketName)
 		if errBucketExists == nil && exists {
-			log.Printf("Bucket %s already exists\n", bucketName)
+			log.Printf("bucket %s already exists\n", bucketName)
+			return nil
 		} else {
-			log.Fatalln(err)
+			return fmt.Errorf("failed to create bucket %s: %w", bucketName, err)
 		}
-	} else {
-		log.Printf("Bucket %s created!\n", bucketName)
-		policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:*"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"]}]}`, bucketName)
-		err = service.Client.SetBucketPolicy(ctx, bucketName, policy)
-		if err != nil {
-			fmt.Errorf("Unable to set policy for bucket %s\n", bucketName)
-		}
-		log.Printf("Access policy set to public for bucket %s created!\n", bucketName)
 	}
+
+	log.Printf("bucket %s created!\n", bucketName)
+	policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:*"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"]}]}`, bucketName)
+	err = service.Client.SetBucketPolicy(ctx, bucketName, policy)
+	if err != nil {
+		log.Printf("unable to set policy for bucket %s: %w", bucketName, err)
+	}
+	return nil
 }
 
 func (service *StorageService) UploadObject(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
@@ -61,7 +62,7 @@ func (service *StorageService) UploadObject(ctx context.Context, fileHeader *mul
 	objectName := fmt.Sprintf("%s%s", uuid.New(), fileExtension)
 	file, err := fileHeader.Open()
 	if err != nil {
-		log.Fatalln("Unable to open file: ", err)
+		log.Fatalln("unable to open file: ", err)
 		return "", err
 	}
 	defer file.Close()

@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/mich31/scoreplay-media-api/repositories"
 	"github.com/mich31/scoreplay-media-api/services"
 )
 
@@ -51,17 +53,32 @@ func (ctrl MediaController) CreateMedia(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
-			"message": err.Error(), // TODO
+			"message": "Failed to process uploaded file: " + err.Error(),
 		})
 	}
 
 	_, err = ctrl.service.CreateMedia(c.Context(), name, tags, file)
 	if err != nil {
-		return c.Status(500).JSON(&fiber.Map{
-			"success": false,
-			"message": err.Error(), // TODO
-		})
+		switch {
+		case errors.Is(err, repositories.ErrMediaExists):
+			return c.Status(400).JSON(&fiber.Map{
+				"success": false,
+				"message": "Failed to create media: " + err.Error(),
+			})
+		case errors.Is(err, repositories.ErrMediaCreation), errors.Is(err, repositories.ErrMediaDBOperation):
+			return c.Status(500).JSON(&fiber.Map{
+				"success": false,
+				"message": "Failed to create media: " + err.Error(),
+			})
+		default:
+			return c.Status(500).JSON(&fiber.Map{
+				"success": false,
+				"message": "internal server error",
+			})
+
+		}
 	}
+
 	return c.Status(201).JSON(&fiber.Map{
 		"success": true,
 		"message": "File uploaded",
