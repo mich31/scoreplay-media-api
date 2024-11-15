@@ -54,3 +54,12 @@ func (service *MediaService) CreateMedia(ctx context.Context, name string, tags 
 	fmt.Printf("Media %s created\n", name)
 	return id, nil
 }
+
+func (service *MediaService) GetMediasByTag(tag string) ([]models.MediaWithTagNames, error) {
+	medias, err := service.mediaRepository.FindByTag(tag)
+	if err != nil {
+		return nil, err
+	}
+
+	return medias, nil
+}

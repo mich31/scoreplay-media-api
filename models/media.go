@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 // Media model
 type Media struct {
@@ -21,4 +25,13 @@ type MediaTag struct {
 	Media     *Media `gorm:"foreignKey:MediaID"`
 	Tag       *Tag   `gorm:"foreignKey:TagID"`
 	CreatedAt time.Time
+}
+
+// Custom model to hold media with just tag names
+type MediaWithTagNames struct {
+	ID          uint           `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	FileUrl     string         `json:"fileUrl"`
+	TagNames    pq.StringArray `json:"tagNames" gorm:"column:tag_names;type:text"`
 }

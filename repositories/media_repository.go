@@ -10,8 +10,7 @@ import (
 type IMediaRepository interface {
 	Create(media *models.Media, tags []string) (uint, error)
 	Delete(id string) error
-	Find() ([]*models.Media, error)
-	FindByTag(tag string) ([]*models.Media, error)
+	FindByTag(tag string) ([]models.MediaWithTagNames, error)
 }
 
 type MediaRepository struct {
@@ -61,12 +60,34 @@ func (repository *MediaRepository) Create(media *models.Media, tagNames []string
 	return media.ID, err // TODO
 }
 
-func (repository *MediaRepository) Find() ([]*models.Media, error) {
-	return nil, nil
-}
+func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagNames, error) {
+	var mediaIDs []uint
+	err := repository.db.Model(&models.MediaTag{}).
+		Select("media_id").
+		Where("tag_id = ?", tag).
+		Find(&mediaIDs).Error
 
-func (repository *MediaRepository) FindByTag(tag string) ([]*models.Media, error) {
-	return nil, nil
+	if err != nil { // TODO
+		return nil, err
+	}
+
+	medias := []models.MediaWithTagNames{}
+	for _, mediaId := range mediaIDs {
+		media := models.MediaWithTagNames{}
+		err = repository.db.Model(&models.Media{}).
+			Select("DISTINCT media.id, media.name, media.description, media.file_url, array_agg(tags.name) as tag_names").
+			Joins("JOIN media_tags ON media_tags.media_id = media.id").
+			Joins("JOIN tags ON tags.id = media_tags.tag_id").
+			Where("media_tags.media_id = ?", mediaId).
+			Group("media.id").
+			First(&media).Error
+		if err != nil {
+			fmt.Errorf("Unable to fetch media %s", mediaId)
+		}
+		medias = append(medias, media)
+	}
+
+	return medias, err
 }
 
 func (repository *MediaRepository) Delete(id string) error {
