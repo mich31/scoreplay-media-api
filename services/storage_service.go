@@ -47,6 +47,12 @@ func (service *StorageService) CreateBucket(ctx context.Context, bucketName stri
 		}
 	} else {
 		log.Printf("Bucket %s created!\n", bucketName)
+		policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:*"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"]}]}`, bucketName)
+		err = service.Client.SetBucketPolicy(ctx, bucketName, policy)
+		if err != nil {
+			fmt.Errorf("Unable to set policy for bucket %s\n", bucketName)
+		}
+		log.Printf("Access policy set to public for bucket %s created!\n", bucketName)
 	}
 }
 
