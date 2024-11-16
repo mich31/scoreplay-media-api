@@ -24,6 +24,105 @@
                 }
             }
         },
+        "/api/medias": {
+            "get": {
+                "description": "Get medias by tag id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get media files by tag id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search by tag id",
+                        "name": "tag",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success true and array of medias",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetMedias.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Returns success true with empty data when no media found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetMedias.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns error for internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetMedias.response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Upload a new media file to storage and creates a new media entry with file url, name and associated tags",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Upload a new media file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Media file to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated list of tags",
+                        "name": "tags",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Returns success true when file is uploaded and a new media is created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateMedia.response"
+                        }
+                    },
+                    "400": {
+                        "description": "Returns error for missing file or existing media",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateMedia.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns error for internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateMedia.response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/tags": {
             "get": {
                 "description": "Get tags (optional: by name)",
@@ -145,6 +244,17 @@
         }
     },
     "definitions": {
+        "controllers.CreateMedia.response": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "controllers.CreateTag.response": {
             "type": "object",
             "properties": {
@@ -162,6 +272,23 @@
         "controllers.DeleteTag.response": {
             "type": "object",
             "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.GetMedias.response": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MediaWithTagNames"
+                    }
+                },
                 "message": {
                     "type": "string"
                 },
@@ -195,6 +322,29 @@
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "models.MediaWithTagNames": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fileUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tagNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

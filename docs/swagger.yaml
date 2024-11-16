@@ -1,4 +1,11 @@
 definitions:
+  controllers.CreateMedia.response:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   controllers.CreateTag.response:
     properties:
       id:
@@ -10,6 +17,17 @@ definitions:
     type: object
   controllers.DeleteTag.response:
     properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  controllers.GetMedias.response:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.MediaWithTagNames'
+        type: array
       message:
         type: string
       success:
@@ -32,6 +50,21 @@ definitions:
         type: string
       status:
         type: string
+    type: object
+  models.MediaWithTagNames:
+    properties:
+      description:
+        type: string
+      fileUrl:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      tagNames:
+        items:
+          type: string
+        type: array
     type: object
   models.Tag:
     properties:
@@ -62,6 +95,74 @@ paths:
       summary: Healthcheck endpoint
       tags:
       - Health
+  /api/medias:
+    get:
+      consumes:
+      - application/json
+      description: Get medias by tag id
+      parameters:
+      - description: search by tag id
+        in: query
+        name: tag
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success true and array of medias
+          schema:
+            $ref: '#/definitions/controllers.GetMedias.response'
+        "404":
+          description: Returns success true with empty data when no media found
+          schema:
+            $ref: '#/definitions/controllers.GetMedias.response'
+        "500":
+          description: Returns error for internal server error
+          schema:
+            $ref: '#/definitions/controllers.GetMedias.response'
+      summary: Get media files by tag id
+      tags:
+      - Media
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new media file to storage and creates a new media entry
+        with file url, name and associated tags
+      parameters:
+      - description: Media file to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Media name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Comma-separated list of tags
+        in: formData
+        name: tags
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns success true when file is uploaded and a new media
+            is created
+          schema:
+            $ref: '#/definitions/controllers.CreateMedia.response'
+        "400":
+          description: Returns error for missing file or existing media
+          schema:
+            $ref: '#/definitions/controllers.CreateMedia.response'
+        "500":
+          description: Returns error for internal server error
+          schema:
+            $ref: '#/definitions/controllers.CreateMedia.response'
+      summary: Upload a new media file
+      tags:
+      - Media
   /api/tags:
     get:
       consumes:
