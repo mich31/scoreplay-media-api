@@ -33,7 +33,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(healthcheck.New())
 
-	api := app.Group("/api", logger.New())
+	api := app.Group("/api")
 
 	// routes
 	api.Route("tags", func(router fiber.Router) {
@@ -49,5 +49,7 @@ func main() {
 		router.Delete("/:id", mediaController.DeleteMedia)
 	})
 
-	app.Listen(":3000")
+	if err := app.Listen(":3000"); err != nil {
+		log.Fatal("Error starting server:", err)
+	}
 }

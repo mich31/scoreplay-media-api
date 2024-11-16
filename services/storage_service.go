@@ -52,7 +52,7 @@ func (service *StorageService) CreateBucket(ctx context.Context, bucketName stri
 	policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:*"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"]}]}`, bucketName)
 	err = service.Client.SetBucketPolicy(ctx, bucketName, policy)
 	if err != nil {
-		log.Printf("unable to set policy for bucket %s: %w", bucketName, err)
+		log.Printf("unable to set policy for bucket %s: %s", bucketName, err.Error())
 	}
 	return nil
 }

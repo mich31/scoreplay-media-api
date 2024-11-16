@@ -84,17 +84,3 @@ func (ctrl MediaController) CreateMedia(c *fiber.Ctx) error {
 		"message": "File uploaded",
 	})
 }
-
-func (ctrl MediaController) UpdateMedia(c *fiber.Ctx) error {
-	return c.Status(501).JSON(&fiber.Map{
-		"success": false,
-		"message": "Not implemented yet",
-	})
-}
-
-func (ctrl MediaController) DeleteMedia(c *fiber.Ctx) error {
-	return c.Status(501).JSON(&fiber.Map{
-		"success": false,
-		"message": "Not implemented yet",
-	})
-}

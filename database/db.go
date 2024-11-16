@@ -14,7 +14,7 @@ import (
 func Connect() (*gorm.DB, error) {
 	port, err := strconv.Atoi(config.Config("DB_PORT"))
 	if err != nil {
-		log.Fatal("PORT not entered in INT format")
+		return nil, fmt.Errorf("invalid port format: %v", err)
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Config("DB_HOST"), port, config.Config("DB_USER"), config.Config("DB_PASSWORD"), config.Config("DB_NAME"))
@@ -22,12 +22,14 @@ func Connect() (*gorm.DB, error) {
 		DSN: dsn,
 	}), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	// Migrate the models
-	db.AutoMigrate(&models.Tag{}, &models.Media{}, &models.MediaTag{})
+	if err := db.AutoMigrate(&models.Tag{}, &models.Media{}, &models.MediaTag{}); err != nil {
+		return nil, fmt.Errorf("failed to migrate database: %v", err)
+	}
 
-	fmt.Println("Connection Opened to Database")
+	log.Println("Successfully connected to database")
 	return db, nil
 }

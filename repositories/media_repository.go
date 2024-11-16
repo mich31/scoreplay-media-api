@@ -18,7 +18,6 @@ var (
 
 type IMediaRepository interface {
 	Create(media *models.Media, tags []string) (uint, error)
-	Delete(id string) error
 	FindByTag(tag string) ([]models.MediaWithTagNames, error)
 }
 
@@ -92,13 +91,10 @@ func (repository *MediaRepository) FindByTag(tag string) ([]models.MediaWithTagN
 			First(&media).Error
 		if err != nil {
 			log.Printf("unable to fetch media %d", mediaId)
+			continue
 		}
 		medias = append(medias, media)
 	}
 
 	return medias, err
-}
-
-func (repository *MediaRepository) Delete(id string) error {
-	return nil
 }
