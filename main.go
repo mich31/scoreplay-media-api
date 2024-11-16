@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -33,6 +34,15 @@ func main() {
 	app.Use(logger.New())
 	app.Use(healthcheck.New())
 
+	cfg := swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/swagger.json",
+		Path:     "swagger",
+		Title:    "Swagger API Docs",
+	}
+
+	app.Use(swagger.New(cfg))
+
 	api := app.Group("/api")
 
 	// routes
@@ -45,8 +55,6 @@ func main() {
 	api.Route("medias", func(router fiber.Router) {
 		router.Get("/", mediaController.GetMedias)
 		router.Post("/", mediaController.CreateMedia)
-		router.Patch("/:id", mediaController.UpdateMedia)
-		router.Delete("/:id", mediaController.DeleteMedia)
 	})
 
 	if err := app.Listen(":3000"); err != nil {

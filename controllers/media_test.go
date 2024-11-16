@@ -6,8 +6,23 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/mich31/scoreplay-media-api/models"
+	"github.com/mich31/scoreplay-media-api/services"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+type mockMediaRepository struct {
+	mock.Mock
+}
+
+func (m *mockMediaRepository) Create(media *models.Media, tags []string) (uint, error) {
+	return 1, nil
+}
+
+func (m *mockMediaRepository) FindByTag(tag string) ([]models.MediaWithTagNames, error) {
+	return []models.MediaWithTagNames{}, nil
+}
 
 func TestMediaRoutes(t *testing.T) {
 	tests := []struct {
@@ -31,31 +46,20 @@ func TestMediaRoutes(t *testing.T) {
 			body:         nil,
 			expectedCode: 501,
 		},
-		{
-			description:  "Update media should return HTTP status 501",
-			route:        "/api/medias/1",
-			method:       "PATCH",
-			body:         nil,
-			expectedCode: 501,
-		},
-		{
-			description:  "Delete media should return HTTP status 501",
-			route:        "/api/medias/1",
-			method:       "DELETE",
-			body:         nil,
-			expectedCode: 501,
-		},
 	}
+
+	mediaRepository := &mockMediaRepository{}
+	tagRepository := &mockTagRepository{}
+	mediaService := services.NewMediaService(mediaRepository, tagRepository)
+	mediaController := NewMediaController(*mediaService)
 
 	app := fiber.New()
 	api := app.Group("/api")
 
 	// routes
 	api.Route("medias", func(router fiber.Router) {
-		router.Get("/", GetMedias)
-		router.Post("/", CreateMedia)
-		router.Patch("/:id", UpdateMedia)
-		router.Delete("/:id", DeleteMedia)
+		router.Get("/", mediaController.GetMedias)
+		router.Post("/", mediaController.CreateMedia)
 	})
 
 	// Iterate through test single test cases
