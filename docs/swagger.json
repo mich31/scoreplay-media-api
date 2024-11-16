@@ -23,9 +23,170 @@
                     }
                 }
             }
+        },
+        "/api/tags": {
+            "get": {
+                "description": "Get tags (optional: by name)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "GET tags",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search by tag name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success true and a list of tags found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetTags.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns error for internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetTags.response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new tag",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Create a new tag",
+                "parameters": [
+                    {
+                        "description": "tag object to be created",
+                        "name": "tag",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Tag"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Returns success true and created tag ID",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateTag.response"
+                        }
+                    },
+                    "400": {
+                        "description": "Returns error for invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateTag.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns error for internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateTag.response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tags/{id}": {
+            "delete": {
+                "description": "Deletes a tag by its id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Delete a tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tag id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success true",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.DeleteTag.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns error for internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.DeleteTag.response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "controllers.CreateTag.response": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.DeleteTag.response": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.GetTags.response": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Tag"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "main.HealthCheck.response": {
             "type": "object",
             "properties": {
@@ -33,6 +194,23 @@
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Tag": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

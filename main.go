@@ -51,7 +51,6 @@ func main() {
 	api.Route("tags", func(router fiber.Router) {
 		router.Get("/", tagController.GetTags)
 		router.Post("/", tagController.CreateTag)
-		router.Patch("/:id", tagController.UpdateTag)
 		router.Delete("/:id", tagController.DeleteTag)
 	})
 	api.Route("medias", func(router fiber.Router) {

@@ -1,4 +1,31 @@
 definitions:
+  controllers.CreateTag.response:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  controllers.DeleteTag.response:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  controllers.GetTags.response:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   main.HealthCheck.response:
     properties:
       date:
@@ -6,8 +33,21 @@ definitions:
       status:
         type: string
     type: object
+  models.Tag:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
 info:
   contact: {}
+  title: 'ScorePlay Media API'
+  version: '0.1'
 paths:
   /api/health:
     get:
@@ -22,4 +62,82 @@ paths:
       summary: Healthcheck endpoint
       tags:
       - Health
+  /api/tags:
+    get:
+      consumes:
+      - application/json
+      description: 'Get tags (optional: by name)'
+      parameters:
+      - description: search by tag name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success true and a list of tags found
+          schema:
+            $ref: '#/definitions/controllers.GetTags.response'
+        "500":
+          description: Returns error for internal server error
+          schema:
+            $ref: '#/definitions/controllers.GetTags.response'
+      summary: GET tags
+      tags:
+      - Tag
+    post:
+      consumes:
+      - application/json
+      description: Creates a new tag
+      parameters:
+      - description: tag object to be created
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/models.Tag'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns success true and created tag ID
+          schema:
+            $ref: '#/definitions/controllers.CreateTag.response'
+        "400":
+          description: Returns error for invalid input
+          schema:
+            $ref: '#/definitions/controllers.CreateTag.response'
+        "500":
+          description: Returns error for internal server error
+          schema:
+            $ref: '#/definitions/controllers.CreateTag.response'
+      summary: Create a new tag
+      tags:
+      - Tag
+  /api/tags/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a tag by its id
+      parameters:
+      - description: Tag id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success true
+          schema:
+            $ref: '#/definitions/controllers.DeleteTag.response'
+        "500":
+          description: Returns error for internal server error
+          schema:
+            $ref: '#/definitions/controllers.DeleteTag.response'
+      summary: Delete a tag
+      tags:
+      - Tag
 swagger: "2.0"

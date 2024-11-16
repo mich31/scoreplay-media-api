@@ -63,13 +63,6 @@ func TestTagRoutes(t *testing.T) {
 			expectedCode: 201,
 		},
 		{
-			description:  "Update tag should return HTTP status 501",
-			route:        "/api/tags/1",
-			method:       "PATCH",
-			body:         nil,
-			expectedCode: 501,
-		},
-		{
 			description:  "Delete tag should return HTTP status 501",
 			route:        "/api/tags/1",
 			method:       "DELETE",
@@ -89,7 +82,6 @@ func TestTagRoutes(t *testing.T) {
 	api.Route("tags", func(router fiber.Router) {
 		router.Get("/", tagController.GetTags)
 		router.Post("/", tagController.CreateTag)
-		router.Patch("/:id", tagController.UpdateTag)
 		router.Delete("/:id", tagController.DeleteTag)
 	})
 
