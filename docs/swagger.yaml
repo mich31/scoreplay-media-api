@@ -1,0 +1,25 @@
+definitions:
+  main.HealthCheck.response:
+    properties:
+      date:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/health:
+    get:
+      description: Healthcheck endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.HealthCheck.response'
+      summary: Healthcheck endpoint
+      tags:
+      - Health
+swagger: "2.0"

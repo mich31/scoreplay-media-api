@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
@@ -46,6 +47,7 @@ func main() {
 	api := app.Group("/api")
 
 	// routes
+	api.Get("/health", HealthCheck)
 	api.Route("tags", func(router fiber.Router) {
 		router.Get("/", tagController.GetTags)
 		router.Post("/", tagController.CreateTag)
@@ -60,4 +62,23 @@ func main() {
 	if err := app.Listen(":3000"); err != nil {
 		log.Fatal("Error starting server:", err)
 	}
+}
+
+// Healthcheck godoc
+//
+//	@Summary		Healthcheck endpoint
+//	@Description	Healthcheck endpoint
+//	@Tags			Health
+//	@Produce		json
+//	@Success		200	{object}	main.HealthCheck.response
+//	@Router			/api/health [get]
+func HealthCheck(c *fiber.Ctx) error {
+	type response struct {
+		Status string `json:"status"`
+		Date   string `json:"date"`
+	}
+	return c.Status(200).JSON(response{
+		Status: "OK",
+		Date:   time.Now().Format("2006-01-02 15:04:05"),
+	})
 }
