@@ -139,7 +139,7 @@ paths:
         name: name
         required: true
         type: string
-      - description: Comma-separated list of tags
+      - description: Array of tag IDs (example => [123, 75, 18873])
         in: formData
         name: tags
         required: true

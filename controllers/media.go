@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mich31/scoreplay-media-api/models"
@@ -67,7 +67,7 @@ func (ctrl MediaController) GetMedias(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			file	formData	file	true	"Media file to upload"
 //	@Param			name	formData	string	true	"Media name"
-//	@Param			tags	formData	string	true	"Comma-separated list of tags"
+//	@Param			tags	formData	string	true	"Array of tag IDs (example: [123, 75, 18873])"
 //	@Success		201	{object}	controllers.CreateMedia.response	"Returns success true when file is uploaded and a new media is created"
 //	@Failure		400	{object}	controllers.CreateMedia.response	"Returns error for missing file or existing media"
 //	@Failure		500	{object}	controllers.CreateMedia.response	"Returns error for internal server error"
@@ -79,7 +79,15 @@ func (ctrl MediaController) CreateMedia(c *fiber.Ctx) error {
 	}
 
 	name := c.FormValue("name")
-	tags := strings.Split(c.FormValue("tags"), ",")
+	tagsStr := c.FormValue("tags")
+	var tags []uint
+	if err := json.Unmarshal([]byte(tagsStr), &tags); err != nil {
+		return c.Status(400).JSON(response{
+			Success: false,
+			Message: "Invalid tags format: " + err.Error(),
+		})
+	}
+
 	file, err := c.FormFile("file")
 	if file == nil {
 		return c.Status(400).JSON(response{

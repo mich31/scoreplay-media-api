@@ -17,7 +17,7 @@ var (
 )
 
 type IMediaRepository interface {
-	Create(media *models.Media, tags []string) (uint, error)
+	Create(media *models.Media, tagIDs []uint) (uint, error)
 	FindByTag(tag string) ([]models.MediaWithTagNames, error)
 }
 
@@ -29,7 +29,7 @@ func NewMediaRepository(db *gorm.DB) *MediaRepository {
 	return &MediaRepository{db: db}
 }
 
-func (repository *MediaRepository) Create(media *models.Media, tagNames []string) (uint, error) {
+func (repository *MediaRepository) Create(media *models.Media, tagIDs []uint) (uint, error) {
 	result := repository.db.Where(models.Media{Name: media.Name}).FirstOrCreate(media)
 	if result.Error != nil {
 		return 0, fmt.Errorf("%w: %v", ErrMediaCreation, result.Error)
@@ -42,10 +42,10 @@ func (repository *MediaRepository) Create(media *models.Media, tagNames []string
 	err := repository.db.Transaction(func(tx *gorm.DB) error {
 		// Verify all tags exist
 		var tags []*models.Tag
-		if err := tx.Model(&models.Tag{}).Where("name IN ?", tagNames).Find(&tags).Error; err != nil {
+		if err := tx.Model(&models.Tag{}).Where("id IN ?", tagIDs).Find(&tags).Error; err != nil {
 			return fmt.Errorf("unable to check tags: %w", err)
 		}
-		if len(tags) != len(tagNames) {
+		if len(tags) != len(tagIDs) {
 			return fmt.Errorf("some tags do not exist")
 		}
 

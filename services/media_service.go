@@ -35,7 +35,7 @@ func NewMediaService(mediaRepository repositories.IMediaRepository, tagRepositor
 	}
 }
 
-func (service *MediaService) CreateMedia(ctx context.Context, name string, tags []string, file *multipart.FileHeader) (uint, error) {
+func (service *MediaService) CreateMedia(ctx context.Context, name string, tagIDs []uint, file *multipart.FileHeader) (uint, error) {
 	fileUrl, err := service.storage.UploadObject(ctx, file)
 	if err != nil {
 		return 0, err
@@ -46,7 +46,7 @@ func (service *MediaService) CreateMedia(ctx context.Context, name string, tags 
 		FileUrl:  fileUrl,
 		FileSize: file.Size,
 	}
-	id, err := service.mediaRepository.Create(media, tags)
+	id, err := service.mediaRepository.Create(media, tagIDs)
 	if err != nil {
 		fmt.Printf("unable to create media %s: %s\n", name, err.Error())
 		return 0, err

@@ -97,7 +97,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Comma-separated list of tags",
+                        "description": "Array of tag IDs (example => [123, 75, 18873])",
                         "name": "tags",
                         "in": "formData",
                         "required": true
