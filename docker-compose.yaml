@@ -18,4 +18,14 @@ services:
       - MINIO_ROOT_PASSWORD=scoreplay_admin
     volumes:
       - ~/minio/data:/data
-    command: server /data --console-address ":9001"
+    entrypoint: sh
+    command: -c '
+      minio server /data --console-address ":9001" &
+      sleep 5 &&
+      mc alias set myminio http://localhost:9000 admin scoreplay_admin &&
+      mc mb myminio/medias --ignore-existing &&
+      mc anonymous set public myminio/medias &&
+      mc admin user add myminio scoreplay_access_key_id scoreplay_secret_access_key &&
+      mc admin policy attach myminio readwrite --user scoreplay_access_key_id &&
+      tail -f /dev/null
+      '
