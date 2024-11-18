@@ -3,35 +3,23 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"mime/multipart"
 
-	"github.com/mich31/scoreplay-media-api/config"
 	"github.com/mich31/scoreplay-media-api/models"
 	"github.com/mich31/scoreplay-media-api/repositories"
 )
 
 type MediaService struct {
 	mediaRepository repositories.IMediaRepository
-	tagRepository   repositories.ITagRepository
-	storage         StorageService
+	tagRepository   repositories.ITagRepository // TODO
+	storage         IStorageService
 }
 
-func NewMediaService(mediaRepository repositories.IMediaRepository, tagRepository repositories.ITagRepository) *MediaService {
-	ctx := context.Background()
-	storage, err := NewStorageService()
-	if err != nil {
-		log.Fatalf("unable to initialize storage service: %s", err)
-	}
-	err = storage.CreateBucket(ctx, config.Config("STORAGE_BUCKET_NAME"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func NewMediaService(mediaRepository repositories.IMediaRepository, tagRepository repositories.ITagRepository, storageService IStorageService) *MediaService {
 	return &MediaService{
 		mediaRepository: mediaRepository,
 		tagRepository:   tagRepository,
-		storage:         *storage,
+		storage:         storageService,
 	}
 }
 

@@ -18,6 +18,11 @@ type StorageService struct {
 	BucketName string
 }
 
+type IStorageService interface {
+	CreateBucket(ctx context.Context, bucketName string) error
+	UploadObject(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
+}
+
 func NewStorageService() (*StorageService, error) {
 	fmt.Println("initializing storage service..")
 	client, err := minio.New(config.Config("STORAGE_ENDPOINT"), &minio.Options{
@@ -33,6 +38,19 @@ func NewStorageService() (*StorageService, error) {
 	return &StorageService{
 		Client: client,
 	}, nil
+}
+
+func InitStorageService() *StorageService {
+	ctx := context.Background()
+	service, err := NewStorageService()
+	if err != nil {
+		log.Fatalf("unable to initialize storage service: %s", err)
+	}
+	err = service.CreateBucket(ctx, config.Config("STORAGE_BUCKET_NAME"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return service
 }
 
 func (service *StorageService) CreateBucket(ctx context.Context, bucketName string) error {

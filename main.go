@@ -24,7 +24,8 @@ func main() {
 	tagRepository := repositories.NewTagRepository(db)
 	mediaRepository := repositories.NewMediaRepository(db)
 	tagService := services.NewTagService(tagRepository)
-	mediaService := services.NewMediaService(mediaRepository, tagRepository)
+	storageService := services.InitStorageService()
+	mediaService := services.NewMediaService(mediaRepository, tagRepository, storageService)
 	tagController := controllers.NewTagController(*tagService)
 	mediaController := controllers.NewMediaController(*mediaService)
 
