@@ -9,7 +9,7 @@ This project is an implementation of a REST API providing endpoints to manage me
 - Search medias by tag
 
 ## Architecture
-This application has been implemented with [Go](https://go.dev/doc/install) and [Fiber](https://docs.gofiber.io/) which is a famous framework to easily build REST APIs in [Go](https://go.dev/doc/install). 
+This application has been implemented with [Go](https://go.dev/doc/install) and [Fiber](https://docs.gofiber.io/) which is a famous framework for easily building REST APIs in [Go](https://go.dev/doc/install). 
 
 It uses a [PostgreSQL](https://www.postgresql.org/) database. **PostgreSQL** is easy to use as a SQL database and handles well the logic of this application. Any other SQL database like [MySQL](https://www.mysql.com/) or NoSQL like [MongoDB](https://www.mongodb.com/) could have been use in this case. This database includes 3 tables: media (media entities), tags (tag entities), media_tags(manage many-to-many association between medias and tags).
 
@@ -74,10 +74,10 @@ go test ./...
 
 ## Improvements
 - **Logging**: More structured logs need to be added with different log levels (DEBUG, INFO, ERROR) for better monitoring and debugging.
-- **Testing**: The current tests suite covers the controllers logic and an integration the  services. Test coverage needs to be improved with more unit and integration tests. An in-memory could even be used for to end-to-end integrations and less rely on mocks.
+- **Testing**: The current tests suite covers the controllers logic and an integration with the services. Test coverage needs to be improved with more unit and integration tests. An in-memory database could even be used to test end-to-end integrations and rely less on mocks.
 - **Pagination & Filtering**: Pagination needs to be implemented for scalability and better performance. Additional filters can be added to provide limiting &amp; sorting capabilities.
-- **Storage**: [MinIO](https://min.io/) is a nice solution for prototyping. The integration with production-ready service like [Amazon S3](https://aws.amazon.com/s3/), [Google Cloud Storage](https://cloud.google.com/storage) or [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs) can be implemented.
-- **API documentation**: [Swaggo](https://github.com/swaggo/swag) helps to generate swagger documentation with annotations but there is room for improvement on the result. In my opinion, it is interestin to use this library to get a 1st draft version and then improve it.
+- **Storage**: [MinIO](https://min.io/) is a nice solution for prototyping. In a long run, the integration with a production-ready service like [Amazon S3](https://aws.amazon.com/s3/), [Google Cloud Storage](https://cloud.google.com/storage) or [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs) can be implemented.
+- **API documentation**: [Swaggo](https://github.com/swaggo/swag) helps to generate swagger documentation with annotations but there is room for improvement on the result. In my opinion, it is interesting to use this library to get a 1st draft version and then improve it.
 - **File management**:
     1. A limit can be set for the input file size on `POST /api/medias` endpoint. It depends on the product requirements but it could help to control resource consumption and service availability.
     2. File processing can be improved by delegating file upload to a messaging service
